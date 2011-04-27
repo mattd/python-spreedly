@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from api import Client
+from spreedly import Client
+
 
 SPREEDLY_AUTH_TOKEN = '59f064f450af88df24f54281f3d78ad8ee0eb8f0'
 SPREEDLY_SITE_NAME = 'shelfworthytest'
 
-class  TestCase(unittest.TestCase):
+
+class SpreedlyTestCase(unittest.TestCase):
+
     def setUp(self):
         self.sclient = Client(SPREEDLY_AUTH_TOKEN, SPREEDLY_SITE_NAME)
 
@@ -75,14 +78,13 @@ class  TestCase(unittest.TestCase):
         self.assertEquals(set(subscriber.keys()), keys)
         self.assertEquals(subscriber['email'], '')
         self.assertEquals(subscriber['screen_name'], 'test')
-        
-        
+
+
         self.sclient.set_info(1, email='jack@bauer.com', screen_name='jb')
         subscriber = self.sclient.get_info(1)
         self.assertEquals(subscriber['email'], 'jack@bauer.com')
         self.assertEquals(subscriber['screen_name'], 'jb')
 
-        
     def test_get_or_create(self):
         keys = set([
             'token', 'active_until', 'trial_active', 'created_at',
@@ -92,18 +94,22 @@ class  TestCase(unittest.TestCase):
         #test non existent subscriber
         result = self.sclient.get_or_create_subscriber(123, 'tester')
         self.assertEquals(set(result.keys()), keys)
-        
+
         #assure that we won't overwrite existing subscriber
         result2 = self.sclient.get_or_create_subscriber(123, 'tester2')
         self.assertEquals(result, result2)
-        
-        
+
     def test_comp_subscription(self):
         result = self.sclient.get_or_create_subscriber(123, 'tester')
 
         self.sclient.create_complimentary_subscription(123, 2, 'months', 'Pro')
-        
+
+
+def suite():
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(SpreedlyTestCase))
+    return suite
+
 
 if __name__ == '__main__':
-    unittest.main()
-
+    unittest.main(defaultTest='suite')
